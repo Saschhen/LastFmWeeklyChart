@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+
+<style>
+
+h1 {
+    color: #004466;
+    font-size: 50px;
+    font-family:Verdana;
+    font-position: center;
+}
+
+p {
+   font-family:Verdana;
+   font-position: center;
+}
+
+
+svg {
+  position: right;
+  top: 0;
+}
+
+circle {
+  fill: steelblue;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+.round-button {
+	width:10%;
+}
+.round-button-circle {
+	width: 100%;
+	height:0;
+	padding-bottom: 100%;
+    border-radius: 100%;
+	border:10px solid #ffffff;
+    overflow:hidden;
+
+    background: #ffffff;
+    box-shadow: 0 0 3px gray;
+}
+.round-button-circle:hover {
+	background:#ffffff;
+}
+.round-button a {
+    display:block;
+	float:left;
+	width:100%;
+	padding-top:50%;
+    padding-bottom:50%;
+	line-height:1em;
+	margin-top:-0.5em;
+
+	text-align:center;
+	color:#004466;
+    font-family:Verdana;
+    font-size:1.2em;
+    font-weight:bold;
+    text-decoration:none;
+}
+
+</style>
+
+
+<div id="fps">FPS: <span>?</span></div>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script>
+
+var data = d3.range(500).map(function() {
+  return {xloc: 0, yloc: 0, xvel: 0, yvel: 0};
+});
+
+var width = 960,
+    height = 500;
+
+var x = d3.scale.linear()
+    .domain([-5, 5])
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .domain([-5, 5])
+    .range([0, height]);
+
+var time0 = Date.now(),
+    time1;
+
+var fps = d3.select("#fps span");
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var circle = svg.selectAll("circle")
+    .data(data)
+  .enter().append("circle")
+    .attr("cx", 10)
+    .attr("cy", 10)
+    .attr("r", 1);
+
+d3.timer(function() {
+
+  data.forEach(function(d) {
+    d.xloc += d.xvel;
+    d.yloc += d.yvel;
+    d.xvel += 0.04 * (Math.random() - .5) - 0.05 * d.xvel - 0.0005 * d.xloc;
+    d.yvel += 0.04 * (Math.random() - .5) - 0.05 * d.yvel - 0.0005 * d.yloc;
+  });
+
+  circle
+      .attr("transform", function(d) { return "translate(" + x(d.xloc) + "," + y(d.yloc) + ")"; })
+      .attr("r", function(d) { return Math.min(1 + 1000 * Math.abs(d.xvel * d.yvel), 10); });
+
+  time1 = Date.now();
+  fps.text(Math.round(1000 / (time1 - time0)));
+  time0 = time1;
+});
+
+
+</script>
+
+<center>
+<h1>Walk through Music World of<br> Last.fm</h1>
+    <font><p>Last.fm is a music website, founded in the United Kingdom in 2002.<br> Its music library contains well over 12 million individual audio tracks from artists on all the major commercial and independent labels.</br><p>One particular feature of Last.fm is the semi-automatic weekly generation and archiving of detailed personal music charts and statistics which are created as part of its profile building.<br> Users have several different charts available, including Weekly Top Artists as well as Weekly Top Tracks. Each of these charts is based on the actual number of people listening to the track, album or artist recorded either through an Audioscrobbler plugin or the Last.fm radio stream.</p><p>Last.fm generates weekly "global" charts of the top 400 artists and tracks listened to by all Last.fm users.<br> To prevent the artificial boosting of an artist or song by deliberately repeated tracks from a single listener, these charts are based on the total number of individual listeners (the reach) and not the number of actual plays.</p><p>Last.fm is your personal key to the World of best music.</p><p>Music. A magic beyond all we do here.</p></font>
+</center>
+
+<center><div class = "round-button"><div class="round-button-circle"><a href="{{ url_for('my_page') }}">
+    Get Started</a></div></div></center>
+
+</body>
+</html>

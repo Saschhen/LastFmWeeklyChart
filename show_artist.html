@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>World's Best Singers</title>
+</head>
+
+<style>
+
+text {
+  font-family: Verdana, "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+  font-size: 60px;
+  font-color: #004466;
+}
+
+</style>
+
+<body>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script>
+
+var arc = d3.svg.arc()
+    .innerRadius(180)
+    .outerRadius(220)
+    .startAngle(0)
+    .endAngle(function(t) { return t * 2 * Math.PI / 3; });
+
+var svg = d3.select("body").append("svg")
+    .attr("width", 960)
+    .attr("height", 500)
+  .append("g")
+    .attr("transform", "translate(480,250)");
+
+svg.append("path")
+    .attr("id", "path")
+    .attr("d", arc(1));
+
+svg.append("text")
+    .attr("x", 8)
+    .attr("dy", 28)
+  .append("textPath")
+    .attr("class", "textpath")
+    .attr("xlink:href", "#path")
+    .text("World's Best Singers");
+
+var transition = svg.transition()
+    .duration(5000);
+
+transition.selectAll("#path")
+    .attrTween("d", function() { return arc; });
+
+transition.selectAll(".textpath")
+    .attrTween("xlink:href", function() { return function() { return "#path"; }; });
+
+</script>
+
+<style>
+
+    path {
+  fill: #3182bd;
+}
+
+text {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 24px;
+}
+
+path {
+  fill: #ffffff;
+}
+
+.column {
+    column-width: 150px;
+    column-count: 2;
+    column-gap: 27px;
+    column-rule: 1px solid #ccc;
+}
+
+
+text {
+  font-family: Verdana;
+  font-size: 38px;
+  position: center;
+  color: #004466;
+}
+
+svg {
+  position: right;
+  top: 0;
+}
+
+circle {
+  fill: steelblue;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+.round-button {
+	width:10%;
+}
+.round-button-circle {
+	width: 100%;
+	height:0;
+	padding-bottom: 100%;
+    border-radius: 100%;
+	border:10px solid #ffffff;
+    overflow:hidden;
+
+    background: #ffffff;
+    box-shadow: 0 0 3px gray;
+}
+.round-button-circle:hover {
+	background:#ffffff;
+}
+.round-button a {
+    display:block;
+	float:left;
+	width:100%;
+	padding-top:50%;
+    padding-bottom:50%;
+	line-height:1em;
+	margin-top:-0.5em;
+
+	text-align:center;
+	color:#004466;
+    font-family:Verdana;
+    font-size:1.2em;
+    font-weight:bold;
+    text-decoration:none;
+}
+
+</style>
+
+
+<body>
+<div class = "round-button"><div class="round-button-circle"><a href="{{ url_for('my_page') }}"><font colour="#004466" face="Verdana">
+        Back to Chart List</a></div></div>
+
+
+
+<div class="column" color="#1a1a33" style="Verdana">
+    {% for string in data %}
+    <center>
+        <li>
+        <a>
+        <li>{{ string[0] }}:<br>{{ string[1] }} playcounts</li>
+        </a>
+        </li>
+    </center>
+    {% endfor %}
+</ul>
+       </div>
+
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script>
+
+var width = 960,
+    height = 500;
+
+var nodes = d3.range(200).map(function() { return {radius: Math.random() * 12 + 4}; }),
+    root = nodes[0],
+    color = d3.scale.category10();
+
+root.radius = 0;
+root.fixed = true;
+
+var force = d3.layout.force()
+    .gravity(0.05)
+    .charge(function(d, i) { return i ? 0 : -2000; })
+    .nodes(nodes)
+    .size([width, height]);
+
+force.start();
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+svg.selectAll("circle")
+    .data(nodes.slice(1))
+  .enter().append("circle")
+    .attr("r", function(d) { return d.radius; })
+    .style("fill", function(d, i) { return color(i % 3); });
+
+force.on("tick", function(e) {
+  var q = d3.geom.quadtree(nodes),
+      i = 0,
+      n = nodes.length;
+
+  while (++i < n) q.visit(collide(nodes[i]));
+
+  svg.selectAll("circle")
+      .attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; });
+});
+
+svg.on("mousemove", function() {
+  var p1 = d3.mouse(this);
+  root.px = p1[0];
+  root.py = p1[1];
+  force.resume();
+});
+
+function collide(node) {
+  var r = node.radius + 16,
+      nx1 = node.x - r,
+      nx2 = node.x + r,
+      ny1 = node.y - r,
+      ny2 = node.y + r;
+  return function(quad, x1, y1, x2, y2) {
+    if (quad.point && (quad.point !== node)) {
+      var x = node.x - quad.point.x,
+          y = node.y - quad.point.y,
+          l = Math.sqrt(x * x + y * y),
+          r = node.radius + quad.point.radius;
+      if (l < r) {
+        l = (l - r) / l * .5;
+        node.x -= x *= l;
+        node.y -= y *= l;
+        quad.point.x += x;
+        quad.point.y += y;
+      }
+    }
+    return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+  };
+}
+
+</script>
+</body>
+</div>
+</html>
